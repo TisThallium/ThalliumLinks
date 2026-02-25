@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VAULT // MIRRORS</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Fira+Code:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#07070a; --bg1:#0d0d12; --bg2:#131318; --surface:#18181f;
+  --border:rgba(139,92,246,0.14); --border2:rgba(255,255,255,0.07);
+  --v:#8b5cf6; --v-bright:#a78bfa; --v-dim:rgba(139,92,246,0.1); --v-glow:rgba(139,92,246,0.4);
+  --text:#eeeef2; --t2:rgba(238,238,242,0.45); --t3:rgba(238,238,242,0.18); --t4:rgba(238,238,242,0.06);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;overflow-x:hidden;cursor:none;min-height:100vh}
+#dot{width:5px;height:5px;background:var(--v-bright);border-radius:50%;position:fixed;pointer-events:none;z-index:9999;transform:translate(-50%,-50%)}
+#ring{width:32px;height:32px;border:1px solid rgba(139,92,246,.5);border-radius:50%;position:fixed;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:width .2s,height .2s}
+body:has(a:hover,button:hover) #ring{width:46px;height:46px;border-color:rgba(139,92,246,.2)}
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9000;opacity:.5;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='.04'/%3E%3C/svg%3E")}
+
+/* ── HEADER ── */
+header{display:flex;align-items:center;justify-content:space-between;padding:24px 48px;border-bottom:1px solid var(--border2)}
+.logo{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--text)}
+.logo-gem{width:22px;height:22px;background:linear-gradient(135deg,var(--v),var(--v-bright));border-radius:5px;position:relative;flex-shrink:0}
+.logo-gem::after{content:'';position:absolute;inset:2px;background:var(--bg);border-radius:3px}
+.logo-gem::before{content:'';position:absolute;inset:6px;background:var(--v-bright);border-radius:2px;z-index:1}
+.logo-name{font-size:.8rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--t2)}
+.logo-name strong{color:var(--text)}
+.header-right{display:flex;align-items:center;gap:8px}
+.back{display:flex;align-items:center;gap:7px;font-family:'Fira Code',monospace;font-size:.6rem;letter-spacing:.08em;color:var(--t2);text-decoration:none;background:var(--bg1);border:1px solid var(--border2);border-radius:8px;padding:8px 16px;transition:all .2s}
+.back:hover{color:var(--text);border-color:rgba(139,92,246,.3);background:var(--bg2)}
+.back svg{width:12px;transition:transform .2s}
+.back:hover svg{transform:translateX(-3px)}
+.hid{font-family:'Fira Code',monospace;font-size:.52rem;color:var(--t3);letter-spacing:.12em;padding-left:16px;border-left:1px solid var(--border2)}
+
+/* ── PAGE INTRO ── */
+.page-intro {
+  padding: 40px 48px 32px;
+  border-bottom: 1px solid var(--border2);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+.pi-left { opacity:0; animation:rise .5s ease forwards .1s; }
+.pi-breadcrumb { font-family:'Fira Code',monospace; font-size:.52rem; color:var(--v-bright); letter-spacing:.15em; text-transform:uppercase; margin-bottom:10px; }
+.pi-title { font-size:2.8rem; font-weight:800; letter-spacing:-.03em; line-height:.9; }
+.pi-right {
+  display:flex; align-items:center; gap:10px;
+  background:rgba(234,179,8,0.07);
+  border:1px solid rgba(234,179,8,0.2);
+  border-radius:8px; padding:12px 18px;
+  opacity:0; animation:rise .4s ease forwards .22s;
+}
+.pi-right-icon { color:#fbbf24; font-size:.75rem; flex-shrink:0; }
+.pi-right p { font-family:'Fira Code',monospace; font-size:.55rem; color:rgba(251,191,36,.7); letter-spacing:.06em; line-height:1.6; }
+
+/* ── MAIN LAYOUT: tab sidebar + content ── */
+.mirror-layout {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  min-height: calc(100vh - 160px);
+}
+
+/* ── TAB SIDEBAR ── */
+.tab-sidebar {
+  border-right: 1px solid var(--border2);
+  padding: 32px 20px;
+  position: sticky;
+  top: 0;
+  height: calc(100vh - 160px);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.tab-sidebar-label {
+  font-family: 'Fira Code', monospace;
+  font-size: .48rem; color: var(--t3); letter-spacing: .22em; text-transform: uppercase;
+  margin-bottom: 12px; padding-left: 12px;
+  opacity: 0; animation: rise .4s ease forwards .3s;
+}
+
+.tab-btn {
+  display: flex; align-items: center; justify-content: space-between;
+  width: 100%; padding: 12px 14px;
+  background: none; border: 1px solid transparent; border-radius: 8px;
+  color: var(--t2); cursor: pointer; text-align: left;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  transition: all .18s;
+  opacity: 0; animation: rise .4s ease forwards;
+}
+.tab-btn:nth-child(2){animation-delay:.35s}
+.tab-btn:nth-child(3){animation-delay:.42s}
+.tab-btn:nth-child(4){animation-delay:.49s}
+.tab-btn:nth-child(5){animation-delay:.56s}
+
+.tab-btn:hover { color: var(--text); background: var(--t4); }
+.tab-btn.active {
+  color: var(--v-bright);
+  background: var(--v-dim);
+  border-color: rgba(139,92,246,.25);
+}
+
+.tab-btn-left { display: flex; align-items: center; gap: 10px; }
+.tab-icon {
+  width: 28px; height: 28px; border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--bg2); font-size: .75rem;
+  flex-shrink: 0;
+  transition: background .18s;
+}
+.tab-btn.active .tab-icon { background: var(--v-dim); }
+
+.tab-label { font-size: .85rem; font-weight: 600; letter-spacing: -.01em; }
+
+.tab-count {
+  font-family: 'Fira Code', monospace;
+  font-size: .48rem; color: var(--t3); letter-spacing: .1em;
+  background: var(--t4); border-radius: 4px;
+  padding: 3px 7px;
+}
+.tab-btn.active .tab-count { color: var(--v-bright); background: rgba(139,92,246,.15); }
+
+/* ── CONTENT PANEL ── */
+.content-panel {
+  padding: 40px 48px;
+  overflow-y: auto;
+}
+
+/* panel heading */
+.panel-head {
+  display: flex; align-items: center; gap: 16px;
+  margin-bottom: 28px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--border2);
+}
+.panel-icon {
+  width: 40px; height: 40px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--v-dim); border: 1px solid rgba(139,92,246,.2);
+  font-size: 1.1rem;
+}
+.panel-title { font-size: 1.4rem; font-weight: 800; letter-spacing: -.02em; }
+.panel-sub { font-family:'Fira Code',monospace; font-size:.52rem; color:var(--t3); letter-spacing:.1em; margin-top:3px; }
+
+/* tab panels */
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* link rows */
+.link-card {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: center; gap: 0 20px;
+  background: var(--bg1);
+  border: 1px solid var(--border2);
+  border-radius: 10px;
+  padding: 18px 22px;
+  margin-bottom: 8px;
+  position: relative; overflow: hidden;
+  transition: border-color .2s, box-shadow .2s, transform .2s;
+}
+.link-card:hover {
+  border-color: rgba(139,92,246,.3);
+  box-shadow: 0 6px 24px rgba(0,0,0,.25);
+  transform: translateX(3px);
+}
+.link-card::before {
+  content: '';
+  position: absolute; left:0; top:0; bottom:0; width:2px;
+  background: var(--v); box-shadow:0 0 10px var(--v-glow);
+  opacity:0; transition:opacity .2s;
+}
+.link-card:hover::before { opacity:1; }
+
+.lc-name { font-size:.95rem; font-weight:700; letter-spacing:-.01em; margin-bottom:5px; transition:color .15s; }
+.link-card:hover .lc-name { color:var(--v-bright); }
+.lc-meta { font-family:'Fira Code',monospace; font-size:.5rem; color:var(--t3); letter-spacing:.08em; }
+
+.lc-badges { display:flex; gap:6px; flex-wrap:wrap; justify-content: flex-end; }
+.badge {
+  font-family:'Fira Code',monospace; font-size:.44rem;
+  color:var(--v-bright); background:var(--v-dim);
+  border:1px solid rgba(139,92,246,.25); border-radius:4px;
+  padding:3px 8px; letter-spacing:.1em; white-space:nowrap;
+}
+.badge.stale { color:var(--t3); background:none; border-color:var(--border2); }
+
+.open-btn {
+  display: flex; align-items: center; gap: 7px;
+  padding: 9px 18px;
+  background: var(--bg2); border: 1px solid var(--border2); border-radius: 8px;
+  color: var(--t2); font-family:'Plus Jakarta Sans',sans-serif;
+  font-size:.75rem; font-weight:600; text-decoration:none;
+  transition: all .2s; white-space:nowrap;
+}
+.open-btn:hover { background:var(--v); border-color:var(--v); color:#fff; box-shadow:0 0 20px var(--v-glow); }
+.open-btn svg { width:11px; }
+
+@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── RESPONSIVE ── */
+@media(max-width:900px){
+  header{padding:20px 24px} .hid{display:none}
+  .page-intro{padding:28px 24px;flex-direction:column;align-items:flex-start}
+  .pi-title{font-size:2rem}
+  .mirror-layout{grid-template-columns:1fr}
+  .tab-sidebar{position:static;height:auto;border-right:none;border-bottom:1px solid var(--border2);padding:20px;flex-direction:row;flex-wrap:wrap;gap:6px;overflow-x:auto}
+  .tab-sidebar-label{display:none}
+  .content-panel{padding:24px}
+  .link-card{grid-template-columns:1fr auto;gap:12px}
+  .lc-badges{display:none}
+}
+</style>
+</head>
+<body>
+<div id="dot"></div><div id="ring"></div>
+
+<header>
+  <a class="logo" href="index.html">
+    <div class="logo-gem"></div>
+    <span class="logo-name"><strong>Thallium</strong> Vault</span>
+  </a>
+  <div class="header-right">
+    <a class="back" href="index.html">
+      <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7.5 2L3.5 6l4 4"/></svg>
+      Back to Vault
+    </a>
+    <div class="hid">MIRROR_ARCHIVE_03</div>
+  </div>
+</header>
+
+<div class="page-intro">
+  <div class="pi-left">
+    <div class="pi-breadcrumb">Vault / 03</div>
+    <div class="pi-title">Mirrors</div>
+  </div>
+  <div class="pi-right">
+    <span class="pi-right-icon">⚠</span>
+    <p>Links are periodically checked but may go stale.</p>
+  </div>
+</div>
+
+<div class="mirror-layout">
+
+  <!-- TAB SIDEBAR -->
+  <div class="tab-sidebar">
+    <div class="tab-sidebar-label">Categories</div>
+
+    <button class="tab-btn active" data-tab="bible">
+      <div class="tab-btn-left">
+        <div class="tab-icon">🎮</div>
+        <span class="tab-label">Bible</span>
+      </div>
+      <span class="tab-count">3</span>
+    </button>
+
+    <button class="tab-btn" data-tab="games">
+      <div class="tab-btn-left">
+        <div class="tab-icon">🎵</div>
+        <span class="tab-label">Games</span>
+      </div>
+      <span class="tab-count">4</span>
+    </button>
+
+    <button class="tab-btn" data-tab="music">
+      <div class="tab-btn-left">
+        <div class="tab-icon">🎬</div>
+        <span class="tab-label">Music</span>
+      </div>
+      <span class="tab-count">3</span>
+    </button>
+
+    <button class="tab-btn" data-tab="content">
+      <div class="tab-btn-left">
+        <div class="tab-icon">📦</div>
+        <span class="tab-label">Content</span>
+      </div>
+      <span class="tab-count">1</span>
+    </button>
+  </div>
+
+  <!-- CONTENT PANELS -->
+  <div class="content-panel">
+
+    <!-- BIBLE -->
+    <div class="tab-panel active" id="panel-bible">
+      <div class="panel-head">
+        <div class="panel-icon">🎮</div>
+        <div>
+          <div class="panel-title">Bible</div>
+          <div class="panel-sub">3 LINKS — ACTIVE</div>
+        </div>
+      </div>
+      <div class="link-card">
+        <div>
+          <div class="lc-name">Internet Bible</div>
+        </div>
+        <div class="lc-badges"><span class="badge">WEBSITE</span></div>
+        <a href="https://fmhy.net/" class="open-btn">Open <svg viewBox="0 0 11 11" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 9L9 2M4 2h5v5"/></svg></a>
+      </div>
+      <div class="link-card">
+        <div>
+          <div class="lc-name">Design Bible</div>
+        </div>
+        <div class="lc-badges"><span class="badge">WEBSITE</span></div>
+        <a href="https://docs.google.com/spreadsheets/d/1sFHNQKJ3H81nXiSPqslYurquBFJrU-X9qor14uXBueo/edit?gid=0#gid=0" class="open-btn">Open <svg viewBox="0 0 11 11" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 9L9 2M4 2h5v5"/></svg></a>
+      </div>
+      <div class="link-card">
+        <div>
+          <div class="lc-name">Unreal Engine Game Tweaks</div>
+        </div>
+        <div class="lc-badges"><span class="badge">WEBSITE</span></div>
+        <a href="https://docs.google.com/spreadsheets/d/1A71Q9jd0sm0MaCRWib8SJEY_urNk-Wuyl2pK5UI_4DI/edit?pli=1&gid=1203767041#gid=1203767041" class="open-btn">Open <svg viewBox="0 0 11 11" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 9L9 2M4 2h5v5"/></svg></a>
+      </div>
+    </div>
+
+    <!-- GAMES -->
+    <div class="tab-panel" id="panel-games">
+      <div class="panel-head">
+        <div class="panel-icon">🎵</div>
+        <div>
+          <div class="panel-title">Games</div>
+          <div class="panel-sub">4 LINKS — ACTIVE</div>
+        </div>
+      </div>
+      <div class="link-card">
+        <div>
+          <div class="lc-name">SteamRIP</div>
+        </div>
+        <div class="lc-badges"><span class="badge">REPACKS</span></div>
+        <a href="https://steamrip.com/" class="open-btn">Open <svg viewBox="0 0 11 11" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 9L9 2M4 2h5v5"/></svg></a>
+      </div>
+      <div class="link-card">
+        <div>
+          <div class="lc-name">FitGirl</div>
+        </div>
+        <div class="lc-badges"><span class="badge">REPACKS</span></div>
+        <a href="https://fitgirl-repacks.site/" class="open-btn">Open <svg viewBox="0 0 11 11" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 9L9 2M4 2h5v5"/></svg></a>
+      </div>
+      <div class="link-card">
+        <div>
+          <div class="lc-name">Elamigos</div>
+        </div>
+        <div class="lc-badges"><span class="badge">REPACKS</span></div>
+        <a href="https://elamigos.site/#TopOfPage" class="open-btn">Open <svg viewBox="0 0 11 11" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 9L9 2M4 2h5v5"/></svg></a>
+      </div>
+      <div class="link-card">
+        <div>
+          <div class="lc-name">CS.RN.RU</div>
+        </div>
+        <div class="lc-badges"><span class="badge">REPACKS</span></div>
+        <a href="https://cs.rin.ru/forum/" class="open-btn">Open <svg viewBox="0 0 11 11" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 9L9 2M4 2h5v5"/></svg></a>
+      </div>
+    </div>
+
+    <!-- MUSIC -->
+    <div class="tab-panel" id="panel-music">
+      <div class="panel-head">
+        <div class="panel-icon">🎬</div>
+        <div>
+          <div class="panel-title">Music</div>
+          <div class="panel-sub">3 LINKS — ACTIVE</div>
+        </div>
+      </div>
+      <div class="link-card">
+        <div>
+          <div class="lc-name">Waves Ultimate V2023.03.26 (WIN)</div>
+        </div>
+        <div class="lc-badges"><span class="badge">DAW PLUGIN</span></div>
+        <a href="https://drive.google.com/file/d/1zywcDYjk8wMnw2yHloizZ6e6PMsS6o8w/view" class="open-btn">Open <svg viewBox="0 0 11 11" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 9L9 2M4 2h5v5"/></svg></a>
+      </div>
+      <div class="link-card">
+        <div>
+          <div class="lc-name">FabFilter Total Bundle V15.02.2024 (WIN)</div>
+        </div>
+        <div class="lc-badges"><span class="badge">DAW PLUGIN</span></div>
+        <a href="https://drive.google.com/drive/folders/1a1ehORdYJY0wnVysrM7qwIJm2PGAzadi" class="open-btn">Open <svg viewBox="0 0 11 11" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 9L9 2M4 2h5v5"/></svg></a>
+      </div>
+      <div class="link-card">
+        <div>
+          <div class="lc-name">Antares Autotune Evo V6.0.9</div>
+        </div>
+        <div class="lc-badges"><span class="badge">DAW PLUGIN</span></div>
+        <a href="#" class="open-btn">Open <svg viewBox="0 0 11 11" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 9L9 2M4 2h5v5"/></svg></a>
+      </div>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="tab-panel" id="panel-content">
+      <div class="panel-head">
+        <div class="panel-icon">📦</div>
+        <div>
+          <div class="panel-title">Content</div>
+          <div class="panel-sub">1 LINKS — ACTIVE</div>
+        </div>
+      </div>
+      <div class="link-card">
+        <div>
+          <div class="lc-name">Kemono Party</div>
+        </div>
+        <div class="lc-badges"><span class="badge">WEBSITE</span></div>
+        <a href="https://kemono.cr" class="open-btn">Open <svg viewBox="0 0 11 11" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 9L9 2M4 2h5v5"/></svg></a>
+      </div>
+    </div>
+
+  </div><!-- /content-panel -->
+</div><!-- /mirror-layout -->
+
+<script>
+// cursor
+const dot=document.getElementById('dot'),ring=document.getElementById('ring');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;dot.style.left=mx+'px';dot.style.top=my+'px'});
+(function loop(){rx+=(mx-rx)*.11;ry+=(my-ry)*.11;ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(loop)})();
+
+// tabs — show/hide panels, no animation, no bugs
+const tabs = document.querySelectorAll('.tab-btn');
+const panels = document.querySelectorAll('.tab-panel');
+
+tabs.forEach(btn => {
+  btn.addEventListener('click', () => {
+    const target = btn.dataset.tab;
+
+    // update buttons
+    tabs.forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+
+    // update panels
+    panels.forEach(p => p.classList.remove('active'));
+    document.getElementById('panel-' + target).classList.add('active');
+  });
+});
+</script>
+</body>
+</html>

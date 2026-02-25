@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VAULT // CONFIGS</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Fira+Code:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#07070a; --bg1:#0d0d12; --bg2:#131318; --surface:#18181f;
+  --border:rgba(139,92,246,0.14); --border2:rgba(255,255,255,0.07);
+  --v:#8b5cf6; --v-bright:#a78bfa; --v-dim:rgba(139,92,246,0.1); --v-glow:rgba(139,92,246,0.4);
+  --text:#eeeef2; --t2:rgba(238,238,242,0.45); --t3:rgba(238,238,242,0.18); --t4:rgba(238,238,242,0.06);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;overflow-x:hidden;cursor:none;min-height:100vh}
+#dot{width:5px;height:5px;background:var(--v-bright);border-radius:50%;position:fixed;pointer-events:none;z-index:9999;transform:translate(-50%,-50%)}
+#ring{width:32px;height:32px;border:1px solid rgba(139,92,246,.5);border-radius:50%;position:fixed;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:width .2s,height .2s}
+body:has(a:hover,button:hover) #ring{width:46px;height:46px;border-color:rgba(139,92,246,.2)}
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9000;opacity:.5;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='.04'/%3E%3C/svg%3E")}
+
+header{display:flex;align-items:center;justify-content:space-between;padding:24px 48px;border-bottom:1px solid var(--border2)}
+.logo{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--text)}
+.logo-gem{width:22px;height:22px;background:linear-gradient(135deg,var(--v),var(--v-bright));border-radius:5px;position:relative;flex-shrink:0}
+.logo-gem::after{content:'';position:absolute;inset:2px;background:var(--bg);border-radius:3px}
+.logo-gem::before{content:'';position:absolute;inset:6px;background:var(--v-bright);border-radius:2px;z-index:1}
+.logo-name{font-size:.8rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--t2)}
+.logo-name strong{color:var(--text)}
+.header-right{display:flex;align-items:center;gap:8px}
+.back{display:flex;align-items:center;gap:7px;font-family:'Fira Code',monospace;font-size:.6rem;letter-spacing:.08em;color:var(--t2);text-decoration:none;background:var(--bg1);border:1px solid var(--border2);border-radius:8px;padding:8px 16px;transition:all .2s}
+.back:hover{color:var(--text);border-color:rgba(139,92,246,.3);background:var(--bg2)}
+.back svg{width:12px;transition:transform .2s}
+.back:hover svg{transform:translateX(-3px)}
+.hid{font-family:'Fira Code',monospace;font-size:.52rem;color:var(--t3);letter-spacing:.12em;padding-left:16px;border-left:1px solid var(--border2)}
+
+.layout{display:grid;grid-template-columns:280px 1fr;min-height:calc(100vh - 73px)}
+
+.sidebar{border-right:1px solid var(--border2);padding:48px 32px;position:sticky;top:0;height:calc(100vh - 73px);overflow-y:auto;display:flex;flex-direction:column}
+.sb-breadcrumb{font-family:'Fira Code',monospace;font-size:.52rem;color:var(--v-bright);letter-spacing:.15em;text-transform:uppercase;margin-bottom:16px;opacity:0;animation:rise .4s ease forwards .1s}
+.sb-title{font-size:2.8rem;font-weight:800;line-height:.9;letter-spacing:-.03em;margin-bottom:32px;opacity:0;animation:rise .5s ease forwards .18s}
+.sb-rule{height:1px;background:var(--border2);margin-bottom:28px;opacity:0;animation:rise .4s ease forwards .25s}
+.sb-stat-row{display:flex;flex-direction:column;gap:18px;opacity:0;animation:rise .4s ease forwards .3s}
+.sb-stat-val{font-size:2rem;font-weight:800;color:var(--v-bright);line-height:1;letter-spacing:-.02em}
+.sb-stat-key{font-family:'Fira Code',monospace;font-size:.48rem;color:var(--t3);letter-spacing:.18em;text-transform:uppercase;margin-top:3px}
+.sb-spacer{flex:1}
+.sb-note{font-family:'Fira Code',monospace;font-size:.52rem;color:var(--t3);letter-spacing:.06em;line-height:1.6;border-left:2px solid var(--v-dim);padding-left:12px;opacity:0;animation:rise .4s ease forwards .4s}
+
+.main{padding:48px}
+
+.col-head{display:grid;grid-template-columns:100px 1fr auto;gap:0 24px;padding:0 20px 12px;font-family:'Fira Code',monospace;font-size:.48rem;color:var(--t3);letter-spacing:.2em;text-transform:uppercase;border-bottom:1px solid var(--border2);margin-bottom:12px;opacity:0;animation:rise .4s ease forwards .35s}
+
+.entry{display:grid;grid-template-columns:100px 1fr auto;gap:0 24px;align-items:center;background:var(--bg1);border:1px solid var(--border2);border-radius:10px;padding:18px 20px;margin-bottom:8px;position:relative;overflow:hidden;transition:border-color .2s,box-shadow .2s,transform .2s;opacity:0;animation:rise .4s ease forwards}
+.entry:nth-child(2){animation-delay:.42s}
+.entry:nth-child(3){animation-delay:.50s}
+.entry:hover{border-color:rgba(139,92,246,.3);box-shadow:0 8px 30px rgba(0,0,0,.3);transform:translateX(3px)}
+.entry::before{content:'';position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--v);box-shadow:0 0 10px var(--v-glow);opacity:0;transition:opacity .2s}
+.entry:hover::before{opacity:1}
+
+.e-thumb{width:100px;height:64px;border-radius:6px;overflow:hidden;border:1px solid var(--border2);position:relative;flex-shrink:0}
+.e-thumb img{width:100%;height:100%;object-fit:cover;display:block;filter:grayscale(1) brightness(.5);transition:filter .4s,transform .4s}
+.e-thumb:hover img{filter:grayscale(0) brightness(.85);transform:scale(1.06)}
+.e-thumb-overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.7);color:var(--v-bright);font-size:.8rem;opacity:0;transition:opacity .15s}
+.e-thumb:hover .e-thumb-overlay{opacity:1}
+
+.e-info{min-width:0}
+.e-name{font-size:1rem;font-weight:700;letter-spacing:-.01em;margin-bottom:6px;transition:color .2s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.entry:hover .e-name{color:var(--v-bright)}
+.e-meta{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-family:'Fira Code',monospace;font-size:.52rem;color:var(--t3);letter-spacing:.08em;margin-bottom:8px}
+.e-meta span::before{content:'·';margin-right:10px;color:var(--t3)}
+.e-meta span:first-child::before{display:none}
+.e-tags{display:flex;gap:6px;flex-wrap:wrap}
+.tag{font-family:'Fira Code',monospace;font-size:.44rem;color:var(--v-bright);background:var(--v-dim);border:1px solid rgba(139,92,246,.25);border-radius:4px;padding:3px 8px;letter-spacing:.1em;white-space:nowrap}
+
+.e-action{flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end;gap:8px}
+.e-date{font-family:'Fira Code',monospace;font-size:.48rem;color:var(--t3);letter-spacing:.08em;white-space:nowrap}
+.dl-btn{display:flex;align-items:center;gap:8px;padding:10px 20px;background:var(--v);border:none;border-radius:8px;color:#fff;font-family:'Plus Jakarta Sans',sans-serif;font-size:.75rem;font-weight:600;letter-spacing:.02em;text-decoration:none;cursor:pointer;transition:background .2s,box-shadow .2s,transform .15s;white-space:nowrap}
+.dl-btn:hover{background:var(--v-bright);box-shadow:0 0 24px var(--v-glow);transform:translateY(-1px)}
+.dl-btn svg{width:13px}
+
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.96);z-index:5000;justify-content:center;align-items:center;padding:60px;flex-direction:column;gap:14px}
+.modal:target{display:flex}
+.modal img{max-width:100%;max-height:80vh;border-radius:8px;border:1px solid var(--border2)}
+.modal-hint{font-family:'Fira Code',monospace;font-size:.52rem;color:var(--t3);letter-spacing:.15em}
+
+@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+
+@media(max-width:900px){
+  .layout{grid-template-columns:1fr}
+  .sidebar{position:static;height:auto;border-right:none;border-bottom:1px solid var(--border2);padding:32px 24px}
+  .main{padding:24px}
+  .sb-title{font-size:2rem}
+  .col-head{display:none}
+  .entry{grid-template-columns:1fr;gap:16px}
+  .e-thumb{display:none}
+  .e-action{flex-direction:row;justify-content:space-between;align-items:center;width:100%}
+  header{padding:20px 24px}
+  .hid{display:none}
+}
+</style>
+</head>
+<body>
+<div id="dot"></div><div id="ring"></div>
+<header>
+  <a class="logo" href="index.html">
+    <div class="logo-gem"></div>
+    <span class="logo-name"><strong>Thallium</strong> Vault</span>
+  </a>
+  <div class="header-right">
+    <a class="back" href="index.html">
+      <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7.5 2L3.5 6l4 4"/></svg>
+      Back to Vault
+    </a>
+    <div class="hid">CONFIG_ARCHIVE_02</div>
+  </div>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="sb-breadcrumb">Vault / 02</div>
+    <h1 class="sb-title">Engine<br>Configs</h1>
+    <div class="sb-rule"></div>
+    <div class="sb-stat-row">
+      <div class="sb-stat">
+        <div class="sb-stat-val">02</div>
+        <div class="sb-stat-key">Files available</div>
+      </div>
+      <div class="sb-stat">
+        <div class="sb-stat-val" style="font-size:1.1rem;color:var(--t2)">02.25.26</div>
+        <div class="sb-stat-key">Last updated</div>
+      </div>
+    </div>
+    <div class="sb-spacer"></div>
+    <div class="sb-note">Engine optimization configs and performance tuning files for supported titles.</div>
+  </aside>
+
+  <main class="main">
+    <div class="col-head">
+      <span>Preview</span>
+      <span>File Info</span>
+      <span>Download</span>
+    </div>
+
+    <div class="entry">
+      <a href="#m1" class="e-thumb">
+        <img src="images/hol2.png" alt="preview">
+        <div class="e-thumb-overlay">↗</div>
+      </a>
+      <div class="e-info">
+        <div class="e-name">High on Life 2 | Engine Tweaks</div>
+        <div class="e-meta"><span>VER 1.00</span><span>12 KB</span></div>
+        <div class="e-tags"><span class="tag">CONFIG ONLY</span></div>
+      </div>
+      <div class="e-action">
+        <div class="e-date">UPDATED 02.25.26</div>
+        <a href="#" class="dl-btn">
+          <svg viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="2"><path d="M6.5 1v8M2.5 7l4 4 4-4M1 12h11"/></svg>
+          Download
+        </a>
+      </div>
+    </div>
+    <a href="#" id="m1" class="modal"><img src="images/hol2.png" alt="preview"><span class="modal-hint">click anywhere to close</span></a>
+
+    <div class="entry">
+      <a href="#m1" class="e-thumb">
+        <img src="images/2077.png" alt="preview">
+        <div class="e-thumb-overlay">↗</div>
+      </a>
+      <div class="e-info">
+        <div class="e-name">Cyberpunk 2077 | Engine Tweaks</div>
+        <div class="e-meta"><span>VER 1.00</span><span>12 KB</span></div>
+        <div class="e-tags"><span class="tag">CONFIG ONLY</span></div>
+      </div>
+      <div class="e-action">
+        <div class="e-date">UPDATED 02.25.26</div>
+        <a href="#" class="dl-btn">
+          <svg viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="2"><path d="M6.5 1v8M2.5 7l4 4 4-4M1 12h11"/></svg>
+          Download
+        </a>
+      </div>
+    </div>
+    <a href="#" id="m1" class="modal"><img src="images/2077.png" alt="preview"><span class="modal-hint">click anywhere to close</span></a>
+  </main>
+</div>
+
+<script>
+const dot=document.getElementById('dot'),ring=document.getElementById('ring');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;dot.style.left=mx+'px';dot.style.top=my+'px'});
+(function loop(){rx+=(mx-rx)*.11;ry+=(my-ry)*.11;ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(loop)})();
+</script>
+</body>
+</html>

@@ -1,16 +1,463 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>My Private Links</title>
-    <style>
-        body { font-family: sans-serif; text-align: center; padding: 50px; background: rgb(37, 35, 52); }
-        .link-card { background: rgb(49, 43, 63); padding: 20px; margin: 10px auto; width: 300px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        a { text-decoration: none; color: #007bff; font-weight: bold; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>THALLIUM VAULT</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Fira+Code:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+/* ─────────── TOKENS ─────────── */
+:root {
+  --bg:       #07070a;
+  --bg1:      #0d0d12;
+  --bg2:      #131318;
+  --surface:  #18181f;
+  --border:   rgba(139,92,246,0.14);
+  --border2:  rgba(255,255,255,0.07);
+  --v:        #8b5cf6;
+  --v-bright: #a78bfa;
+  --v-dim:    rgba(139,92,246,0.1);
+  --v-glow:   rgba(139,92,246,0.4);
+  --text:     #eeeef2;
+  --t2:       rgba(238,238,242,0.45);
+  --t3:       rgba(238,238,242,0.18);
+  --t4:       rgba(238,238,242,0.07);
+}
+* { box-sizing:border-box; margin:0; padding:0; }
+html { scroll-behavior:smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  overflow-x: hidden;
+  cursor: none;
+  min-height: 100vh;
+}
+
+/* ── CURSOR ── */
+#dot {
+  width: 5px; height: 5px;
+  background: var(--v-bright);
+  border-radius: 50%;
+  position: fixed; pointer-events: none; z-index: 9999;
+  transform: translate(-50%,-50%);
+}
+#ring {
+  width: 32px; height: 32px;
+  border: 1px solid rgba(139,92,246,.5);
+  border-radius: 50%;
+  position: fixed; pointer-events: none; z-index: 9998;
+  transform: translate(-50%,-50%);
+  transition: width .2s, height .2s, border-color .2s;
+}
+body:has(a:hover) #ring { width:48px; height:48px; border-color:rgba(139,92,246,.2); }
+body:has(a:hover) #dot { background:var(--v); }
+
+/* ── NOISE GRAIN ── */
+body::after {
+  content: '';
+  position: fixed; inset: 0; pointer-events: none; z-index: 9000;
+  opacity: .55;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='.04'/%3E%3C/svg%3E");
+}
+
+/* ── AMBIENT GLOW ── */
+.glow {
+  position: fixed; pointer-events: none; z-index: 0;
+  border-radius: 50%;
+  filter: blur(120px);
+  opacity: .12;
+}
+.glow-1 { width:600px; height:600px; background:var(--v); top:-200px; right:-100px; }
+.glow-2 { width:400px; height:400px; background:var(--v); bottom:-150px; left:-100px; }
+
+/* ── HEADER ── */
+header {
+  position: relative; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 28px 60px;
+  border-bottom: 1px solid var(--border2);
+}
+.logo {
+  display: flex; align-items: center; gap: 12px;
+  text-decoration: none; color: var(--text);
+}
+.logo-gem {
+  width: 24px; height: 24px;
+  background: linear-gradient(135deg, var(--v), var(--v-bright));
+  border-radius: 6px;
+  position: relative;
+  flex-shrink: 0;
+}
+.logo-gem::after {
+  content: '';
+  position: absolute; inset: 2px;
+  background: var(--bg);
+  border-radius: 4px;
+}
+.logo-gem::before {
+  content: '';
+  position: absolute; inset: 7px;
+  background: var(--v-bright);
+  border-radius: 2px;
+  z-index: 1;
+}
+.logo-name {
+  font-size: .82rem; font-weight: 700;
+  letter-spacing: .12em; text-transform: uppercase;
+  color: var(--t2);
+}
+.logo-name strong { color: var(--text); font-weight: 700; }
+
+nav.top {
+  display: flex; align-items: center;
+  background: var(--bg1);
+  border: 1px solid var(--border2);
+  border-radius: 10px;
+  padding: 4px;
+  gap: 2px;
+}
+nav.top a {
+  font-family: 'Fira Code', monospace;
+  font-size: .6rem; font-weight: 400;
+  letter-spacing: .08em; text-transform: uppercase;
+  color: var(--t2); text-decoration: none;
+  padding: 7px 18px; border-radius: 7px;
+  transition: color .15s, background .15s;
+}
+nav.top a:hover { color: var(--text); background: var(--bg2); }
+
+.badge-online {
+  display: flex; align-items: center; gap: 7px;
+  font-family: 'Fira Code', monospace;
+  font-size: .58rem; color: var(--t3); letter-spacing: .1em;
+}
+.badge-online::before {
+  content: '';
+  width: 6px; height: 6px; border-radius: 50%;
+  background: #22c55e;
+  box-shadow: 0 0 0 2px rgba(34,197,94,.25);
+}
+
+/* ── HERO ── */
+.hero {
+  position: relative; z-index: 10;
+  padding: 100px 60px 80px;
+  border-bottom: 1px solid var(--border2);
+  overflow: hidden;
+}
+
+.hero-bg-text {
+  position: absolute;
+  right: -20px; top: 40px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 22vw; font-weight: 800;
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(139,92,246,0.07);
+  white-space: nowrap;
+  pointer-events: none;
+  user-select: none;
+  line-height: 1;
+}
+
+.hero-eyebrow {
+  display: inline-flex; align-items: center; gap: 10px;
+  font-family: 'Fira Code', monospace;
+  font-size: .62rem; color: var(--v-bright); letter-spacing: .2em;
+  text-transform: uppercase;
+  background: var(--v-dim);
+  border: 1px solid rgba(139,92,246,.25);
+  border-radius: 100px;
+  padding: 6px 14px;
+  margin-bottom: 36px;
+  opacity: 0; animation: rise .6s ease forwards .1s;
+}
+.hero-eyebrow::before {
+  content: ''; width: 5px; height: 5px; border-radius: 50%;
+  background: var(--v-bright);
+  box-shadow: 0 0 6px var(--v);
+}
+
+.hero-title {
+  font-size: clamp(3.5rem, 8vw, 7.5rem);
+  font-weight: 800; line-height: .9;
+  letter-spacing: -.03em;
+  margin-bottom: 36px;
+  opacity: 0; animation: rise .7s ease forwards .2s;
+}
+.hero-title .ghost {
+  display: block;
+  color: transparent;
+  -webkit-text-stroke: 1.5px rgba(255,255,255,0.15);
+}
+.hero-title .accent { color: var(--v-bright); }
+
+.hero-body {
+  display: flex; align-items: flex-end;
+  justify-content: space-between;
+  gap: 40px;
+  opacity: 0; animation: rise .6s ease forwards .35s;
+}
+.hero-desc {
+  font-size: .9rem; color: var(--t2); line-height: 1.8;
+  max-width: 420px;
+}
+
+.hero-stats {
+  display: flex; gap: 1px;
+  border: 1px solid var(--border2);
+  flex-shrink: 0;
+}
+.hs {
+  background: var(--bg1);
+  padding: 20px 28px;
+  text-align: center;
+}
+.hs-n {
+  font-size: 2.8rem; font-weight: 800;
+  color: var(--v-bright); line-height: 1;
+  letter-spacing: -.02em;
+}
+.hs-l {
+  font-family: 'Fira Code', monospace;
+  font-size: .5rem; color: var(--t3); letter-spacing: .18em;
+  text-transform: uppercase; margin-top: 5px;
+}
+
+/* ── SECTION CARDS ── */
+.sections-wrap {
+  padding: 60px;
+}
+
+.sec-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 24px;
+  opacity: 0; animation: rise .5s ease forwards .5s;
+}
+.sec-label {
+  font-family: 'Fira Code', monospace;
+  font-size: .55rem; color: var(--t3); letter-spacing: .25em; text-transform: uppercase;
+}
+.sec-rule { flex: 1; height: 1px; background: var(--border2); margin-left: 20px; }
+
+.cards {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 1fr;
+  gap: 12px;
+}
+
+.card {
+  display: flex; flex-direction: column;
+  background: var(--bg1);
+  border: 1px solid var(--border2);
+  border-radius: 12px;
+  padding: 32px 28px 28px;
+  text-decoration: none; color: inherit;
+  position: relative; overflow: hidden;
+  transition: border-color .25s, transform .25s, box-shadow .25s;
+  opacity: 0; animation: rise .5s ease forwards;
+}
+.card:nth-child(1) { animation-delay:.58s; }
+.card:nth-child(2) { animation-delay:.66s; }
+.card:nth-child(3) { animation-delay:.74s; }
+
+.card:hover {
+  border-color: rgba(139,92,246,.4);
+  transform: translateY(-3px);
+  box-shadow: 0 20px 60px rgba(0,0,0,.4), 0 0 0 1px rgba(139,92,246,.15);
+}
+.card::before {
+  content: '';
+  position: absolute; inset: 0; border-radius: 12px;
+  background: radial-gradient(ellipse at 0% 0%, var(--v-dim), transparent 60%);
+  opacity: 0; transition: opacity .3s;
+}
+.card:hover::before { opacity: 1; }
+
+.card-inner { position: relative; z-index: 1; display: flex; flex-direction: column; height: 100%; }
+
+.card-top {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 40px;
+}
+.card-num {
+  font-family: 'Fira Code', monospace;
+  font-size: .58rem; color: var(--v-bright); letter-spacing: .15em;
+  background: var(--v-dim);
+  border: 1px solid rgba(139,92,246,.2);
+  border-radius: 6px; padding: 4px 10px;
+}
+.card-arrow {
+  width: 32px; height: 32px;
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--t3); font-size: .9rem;
+  transition: all .2s;
+}
+.card:hover .card-arrow {
+  border-color: var(--v);
+  color: var(--v-bright);
+  background: var(--v-dim);
+  transform: translate(2px,-2px);
+}
+
+.card h2 {
+  font-size: 1.9rem; font-weight: 800;
+  letter-spacing: -.02em; margin-bottom: 10px;
+  transition: color .2s;
+}
+.card:hover h2 { color: var(--v-bright); }
+
+.card p {
+  font-size: .82rem; color: var(--t2); line-height: 1.7;
+  flex: 1; margin-bottom: 28px;
+}
+
+.card-footer {
+  display: flex; align-items: center; justify-content: space-between;
+  padding-top: 20px;
+  border-top: 1px solid var(--border2);
+  font-family: 'Fira Code', monospace;
+  font-size: .52rem; color: var(--t3); letter-spacing: .1em;
+}
+.card-dot { width: 6px; height: 6px; border-radius: 50%; background: #22c55e; box-shadow: 0 0 5px #22c55e; }
+
+/* ── FOOTER ── */
+footer {
+  padding: 24px 60px;
+  border-top: 1px solid var(--border2);
+  display: flex; justify-content: space-between; align-items: center;
+  position: relative; z-index: 10;
+}
+footer span {
+  font-family: 'Fira Code', monospace;
+  font-size: .52rem; color: var(--t3); letter-spacing: .1em;
+}
+
+/* ── ANIMATION ── */
+@keyframes rise { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 960px) {
+  header { padding: 24px; }
+  nav.top { display: none; }
+  .hero { padding: 60px 24px 50px; }
+  .hero-body { flex-direction: column; align-items: flex-start; }
+  .sections-wrap { padding: 40px 24px; }
+  .cards { grid-template-columns: 1fr; }
+  footer { padding: 24px; }
+  .hero-bg-text { display: none; }
+}
+</style>
 </head>
 <body>
-    <h1>Thallium Links</h1>
-    <div class="link-card"><a href="https://google.com">Search Engine</a></div>
-    <div class="link-card"><a href="https://github.com">GitHub</a></div>
+<div id="dot"></div>
+<div id="ring"></div>
+<div class="glow glow-1"></div>
+<div class="glow glow-2"></div>
+
+<header>
+  <a class="logo" href="index.html">
+    <div class="logo-gem"></div>
+    <span class="logo-name"><strong>Thallium</strong> Vault</span>
+  </a>
+  <nav class="top">
+    <a href="reshades.html">Reshades</a>
+    <a href="configs.html">Configs</a>
+    <a href="mirrors.html">Mirrors</a>
+  </nav>
+  <div class="badge-online">Secure · Online</div>
+</header>
+
+<section class="hero">
+  <div class="hero-bg-text">VAULT</div>
+  <div class="hero-eyebrow">Private Archive</div>
+  <h1 class="hero-title">
+    PRIVATE<br>
+    <span class="ghost">ARCHIVE<span class="accent">.</span></span>
+  </h1>
+  <div class="hero-body">
+    <p class="hero-desc">Secure repository for game modifications, technical metadata, and optimization resources. Handle with discretion.</p>
+    <div class="hero-stats">
+      <div class="hs"><div class="hs-n">47</div><div class="hs-l">Files</div></div>
+      <div class="hs" style="border-left:1px solid var(--border2)"><div class="hs-n">3</div><div class="hs-l">Sections</div></div>
+    </div>
+  </div>
+</section>
+
+<div class="sections-wrap">
+  <div class="sec-header">
+    <span class="sec-label">Sections</span>
+    <div class="sec-rule"></div>
+  </div>
+
+  <div class="cards">
+    <a class="card" href="reshades.html">
+      <div class="card-inner">
+        <div class="card-top">
+          <span class="card-num">01</span>
+          <div class="card-arrow">↗</div>
+        </div>
+        <h2>Reshades</h2>
+        <p>Visual fidelity presets. Color grading and post-process pipelines for maximum immersion across all supported titles.</p>
+        <div class="card-footer">
+          <div class="card-dot"></div>
+          <span>3 FILES AVAILABLE</span>
+        </div>
+      </div>
+    </a>
+
+    <a class="card" href="configs.html">
+      <div class="card-inner">
+        <div class="card-top">
+          <span class="card-num">02</span>
+          <div class="card-arrow">↗</div>
+        </div>
+        <h2>Configs</h2>
+        <p>Engine optimization configs and performance tuning files.</p>
+        <div class="card-footer">
+          <div class="card-dot"></div>
+          <span>2 FILEs AVAILABLE</span>
+        </div>
+      </div>
+    </a>
+
+    <a class="card" href="mirrors.html">
+      <div class="card-inner">
+        <div class="card-top">
+          <span class="card-num">03</span>
+          <div class="card-arrow">↗</div>
+        </div>
+        <h2>Mirrors</h2>
+        <p>Repack directory and distribution mirror archives by category.</p>
+        <div class="card-footer">
+          <div class="card-dot"></div>
+          <span>4 CATEGORIES</span>
+        </div>
+      </div>
+    </a>
+  </div>
+</div>
+
+<footer>
+  <span>© THALLIUM VAULT — ALL RIGHTS RESERVED</span>
+  <span>BUILD 2026.02.25</span>
+</footer>
+
+<script>
+const dot = document.getElementById('dot');
+const ring = document.getElementById('ring');
+let mx=0, my=0, rx=0, ry=0;
+document.addEventListener('mousemove', e => {
+  mx = e.clientX; my = e.clientY;
+  dot.style.left = mx + 'px'; dot.style.top = my + 'px';
+});
+(function loop() {
+  rx += (mx - rx) * .1; ry += (my - ry) * .1;
+  ring.style.left = rx + 'px'; ring.style.top = ry + 'px';
+  requestAnimationFrame(loop);
+})();
+</script>
 </body>
 </html>
